@@ -8,11 +8,7 @@ import json
 
 def encrypt_file(file_path, key):
     cipher = AES.new(key, AES.MODE_CBC)
-    iv = cipher.iv  # En cryptographie, un IV (Initialization Vector, ou vecteur d'initialisation en français) est une valeur initiale
-    # L'utilisation d'un IV unique pour chaque fichier ou chaque opération de 
-    #chiffrement permet de produire un chiffrement différent même si le contenu de départ et 
-    #la clé sont les mêmes. Ainsi, cela rend l'analyse de texte chiffré beaucoup plus difficile 
-    #pour un attaquant. bref, chaque fichier a son propre iv
+    iv = cipher.iv
     with open(file_path, "rb") as f:# Read and encrypt the file content
         plaintext = f.read()
     ciphertext = cipher.encrypt(pad(plaintext, AES.block_size))
