@@ -9,7 +9,7 @@ import json
 def encrypt_file(file_path, key):
     cipher = AES.new(key, AES.MODE_CBC)
     iv = cipher.iv
-    with open(file_path, "rb") as f:# Read and encrypt the file content
+    with open(file_path, "rb") as f:
         plaintext = f.read()
     ciphertext = cipher.encrypt(pad(plaintext, AES.block_size))
 
@@ -19,7 +19,7 @@ def encrypt_file(file_path, key):
     base_path, original_ext = os.path.splitext(file_path)
     encrypted_file_path = base_path + ".ft"
     os.rename(file_path, encrypted_file_path)
-    return encrypted_file_path, original_ext # Return the new file path and original extension for metadata
+    return encrypted_file_path, original_ext
 
 
 def decrypt_file(file_path, key, original_ext):
