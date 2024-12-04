@@ -138,9 +138,6 @@ clean:
 ## Conclusion
 
 This program is designed for educational purposes, providing a safe, encrypted environment to learn about encryption techniques, handling errors, and working with Linux systems. 
-
-Do not use this program for malicious purposes. Ensure that you work within a controlled environment (such as a virtual machine or Docker container).
-
 ---
 
 **Note**: Replace `<your_encryption_key>` with a secure key, and ensure your system has the necessary encryption libraries for this project to work.
