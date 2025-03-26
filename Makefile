@@ -31,7 +31,7 @@ help:
 
 # Cible pour nettoyer (optionnelle)
 clean:
-	rm -f infection/*.ft $(FILES)  # Supprime les fichiers chiffrés et les fichiers originaux
-	rm -f encryption_key.txt #f pour ne pas print l'erreur si le fichier n'existe pas
+	rm -f infection/*.ft $(FILES)
+	rm -f encryption_key.txt
 	rm -f metadata.json
 	rm -rf infection

