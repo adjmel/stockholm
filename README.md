@@ -53,7 +53,7 @@ This project is for educational purposes only.
 
     - To display **help**:
       ```bash
-     python3 ./stockholm --help
+      python3 ./stockholm --help
       ```
 
     - To display the **version** of the program:
