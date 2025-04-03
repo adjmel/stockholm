@@ -1,4 +1,4 @@
-DIRECTORY = infection
+DIRECTORY = $(HOME)/infection
 
 FILES = $(DIRECTORY)/audio.mp3 $(DIRECTORY)/gif.gif $(DIRECTORY)/texte.txt \
         $(DIRECTORY)/image.jpg $(DIRECTORY)/document.doc \
@@ -21,7 +21,7 @@ help:
 	@echo "make clean : Delete encrypted files and original files"
 
 clean:
-	rm -f infection/*.ft $(FILES)
+	rm -f $(HOME)/infection/*.ft $(FILES)
 	rm -f encryption_key.txt
 	rm -f metadata.json
-	rm -rf infection
+	rm -rf $(HOME)/infection
