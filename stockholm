@@ -115,7 +115,6 @@ def main():
         #"It must only work in a folder called infection in the user’s HOME directory."
         home_directory = os.path.expanduser("~")
         directory_path = os.path.join(home_directory, "infection")
-        #directory_path = "/home/madjogou/infection"
         key_file_path = 'encryption_key.txt'
         encryption_key = load_key(key_file_path)
 
