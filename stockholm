@@ -70,12 +70,12 @@ def encrypt_files_in_directory(directory, key, args):
     # if ".mp6" in valid_extensions:
     #     print("C'EST VALIDE")
     # print("PAS VALIDE")
-    with open("metadata.json", "w") as metadata_file: # Enregistrer les métadonnées dans un fichier JSON
+    with open("metadata.json", "w") as metadata_file:
         json.dump(metadata, metadata_file)
 
 
 def decrypt_files_in_directory(directory, key, args):
-    with open("metadata.json", "r") as metadata_file:# Charger les métadonnées depuis le fichier JSON
+    with open("metadata.json", "r") as metadata_file:
         metadata = json.load(metadata_file)
 
     for encrypted_file_path, original_ext in metadata.items():
@@ -110,9 +110,10 @@ def main():
         args = parser.parse_args()
 
         #directory_path = "/mnt/nfs/homes/madjogou/Desktop/piscine_cyber/stockholm/infection"
-        directory_path = "/Users/melissaadjogoua/Desktop/stockholm/infection"
-        #It must only work in a folder called infection in the user’s HOME directory. donc mettre dans la vm :
-        #directory_path = "/mnt/nfs/homes/infection"
+        #directory_path = "/Users/melissaadjogoua/Desktop/stockholm/infection"
+        
+        #"It must only work in a folder called infection in the user’s HOME directory.":
+        directory_path = "/home/madjogou/infection"
         key_file_path = 'encryption_key.txt'
         encryption_key = load_key(key_file_path)
 
