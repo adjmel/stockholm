@@ -67,9 +67,6 @@ def encrypt_files_in_directory(directory, key, args):
             metadata[encrypted_file_path] = original_ext
             if not args.silent:
                 print(f"Encrypted file: {encrypted_file_path}, Original extension: {original_ext}")
-    # if ".mp6" in valid_extensions:
-    #     print("C'EST VALIDE")
-    # print("PAS VALIDE")
     with open("metadata.json", "w") as metadata_file:
         json.dump(metadata, metadata_file)
 
@@ -109,9 +106,6 @@ def main():
         parser.add_argument("-r", "--reverse", type=str, help="Decrypt the files with the provided key (hex format)")
         args = parser.parse_args()
 
-        #directory_path = "/mnt/nfs/homes/madjogou/Desktop/piscine_cyber/stockholm/infection"
-        #directory_path = "/Users/melissaadjogoua/Desktop/stockholm/infection"
-        
         #"It must only work in a folder called infection in the user’s HOME directory."
         home_directory = os.path.expanduser("~")
         directory_path = os.path.join(home_directory, "infection")
